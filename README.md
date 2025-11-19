@@ -119,6 +119,5 @@ Isso permite que o projeto funcione **totalmente offline**.
 ------------------------------------------------------------------------
 
 ## 👨‍💻 Autor
-
-**Josadack**\
-GitHub: https://github.com/Josadack
+Projeto criado pela Growdev. 
+Desenvolvimento por Josadack.
