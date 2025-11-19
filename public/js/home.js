@@ -1,0 +1,168 @@
+//Essa conta é para chamar a modal no bootstrap, para fechar depois de criar a conta.
+const myModal = new bootstrap.Modal("#transaction-modal")
+
+let logged = sessionStorage.getItem("logged");
+const session = localStorage.getItem("session");
+
+let data = {
+     transactions: []
+}
+
+document.getElementById("button-logout").addEventListener("click", logout)
+document.getElementById("transaction-button").addEventListener("click", function(){
+    window.location.href = "transactions.html"
+})
+
+//ADCIONAR LANÇAMENTO
+document.getElementById("transaction-form").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const value = parseFloat(document.getElementById("value-input").value);
+    const description = document.getElementById("description-input").value;
+    const date = document.getElementById("date-input").value;
+    const type = document.querySelector('input[name="type-input"]:checked').value; //como temos duas opções aqui ele consegue pegar qual estar marcada
+
+    data.transactions.unshift({
+        value: value, type: type, description: description, date: date
+    });
+
+    saveDate(data);
+    e.target.reset();
+    myModal.hide();
+
+    getCashIn();
+    getCashOut();
+    getTotal();
+
+    alert("Lançamento com sucsso")
+});
+
+checkLogged();
+
+function checkLogged(){
+    if(session){
+        sessionStorage.setItem("logged", session);
+        logged = session;
+    }
+
+    if(!logged){
+      window.location.href = "index.html";
+      return;
+    }
+
+    const dataUser = localStorage.getItem(logged);
+    if(dataUser){
+        data = JSON.parse(dataUser);
+    }
+
+    getCashIn();
+    getCashOut();
+    getTotal();
+}
+
+function logout(){
+    sessionStorage.removeItem("logged");
+    localStorage.removeItem("session");
+
+    window.location.href = "index.html"
+};
+
+function getCashIn(){
+    const transactions = data.transactions;
+
+    const cashIn = transactions.filter((item) => item.type === "1");
+
+    if(cashIn.length){
+        let cashInHTML = ``;
+        let limit = 0;
+
+        if(cashIn.length > 5){
+        limit = 5;
+       }else {
+        limit = cashIn.length;
+       }
+
+       for (let index = 0; index < limit; index++) {
+            cashInHTML += `
+                  <div class="row mb-4">
+                      <div class="col-12">
+                          <h3 class="fs-2"><span style="color: #4c79d3;"> R$ ${cashIn[index].value.toFixed(2)}</span></h3>
+                          <div class="container p-0">
+                              <div class="row">
+                                   <div class="col-12 col-md-8">
+                                      <p>${cashIn[index].description}</p>
+                                  </div>
+                                  <di class="col-12 col-md-3 d-flex justify-content-end">
+                                      ${cashIn[index].date}
+                                  </di>
+                             </div>
+                           </div>
+                      </div>
+                  </div>
+            `
+       }
+
+       document.getElementById("cash-in-list").innerHTML = cashInHTML
+    }
+
+   
+}
+
+function getCashOut(){
+    const transactions = data.transactions;
+
+    const cashIn = transactions.filter((item) => item.type === "2");
+
+    if(cashIn.length){
+        let cashInHTML = ``;
+        let limit = 0;
+
+        if(cashIn.length > 5){
+        limit = 5;
+       }else {
+        limit = cashIn.length;
+       }
+
+       for (let index = 0; index < limit; index++) {
+            cashInHTML += `
+                  <div class="row mb-4">
+                      <div class="col-12">
+                          <h3 class="fs-2"><span style="color: #f53b3bab;"> R$ ${cashIn[index].value.toFixed(2)}</span></h3>
+                          <div class="container p-0">
+                              <div class="row">
+                                   <div class="col-12 col-md-8">
+                                      <p>${cashIn[index].description}</p>
+                                  </div>
+                                  <di class="col-12 col-md-3 d-flex justify-content-end">
+                                      ${cashIn[index].date}
+                                  </di>
+                             </div>
+                           </div>
+                      </div>
+                  </div>
+            `
+       }
+     
+       document.getElementById("cash-out-list").innerHTML = cashInHTML
+    }
+
+   
+}
+
+function getTotal(){
+    const transactions = data.transactions;
+    let total = 0;
+    transactions.forEach((item) => {
+        if(item.type === "1"){
+            total += item.value;
+        } else {
+            total -= item.value;
+        }
+    })
+
+    document.getElementById("total").innerHTML = `R$ ${total.toFixed(2)}`
+}
+
+function saveDate(data){
+    localStorage.setItem(data.login, JSON.stringify(data))
+}
